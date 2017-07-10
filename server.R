@@ -9,10 +9,17 @@ readposts <-
 
 posts <- readposts()
 
+df <- data.frame(
+				x1=character(),
+				stringsAsFactors=FALSE)
+
+
 filteredclasses <-
 		function(){
-			classes <- as.data.frame(xpathSApply(doc = posts, path = "/*/Posts/Post/@class"))
-			print(sprintf("There are %d classes",length(unlist(classes))))
+			classes <- xpathSApply(doc = posts, path = "/*/Posts/Post/@class")
+			for (i in 1:length(classes)) {
+				df <- rbind(df, data.frame(x = classes[[i]]))
+			}			
 }
 
 filteredmessagesandclasses <-
@@ -38,5 +45,6 @@ function(input, output) {
 			  "class"
 		  })
 }
+
 
 
