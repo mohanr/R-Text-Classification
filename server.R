@@ -9,32 +9,37 @@ readposts <-
 
 posts <- readposts()
 
-df <- data.frame(
-				x1=character(),
+classdf <- data.frame(
+		classes=character(),
 				stringsAsFactors=FALSE)
 
+messagedf <- data.frame(
+				messages=character(),
+				stringsAsFactors=FALSE)
+		
 
 filteredclasses <-
 		function(){
 			classes <- xpathSApply(doc = posts, path = "/*/Posts/Post/@class")
-			for (i in 1:length(classes)) {
-				df <- rbind(df, data.frame(x = classes[[i]]))
-			}			
-}
+			classdf <- rbind(classdf, data.frame(classes = classes))
+		}
+
+filteredmessages <-
+		function(){
+			messages <- trimws(xpathSApply(doc = posts, path = "//Post//text()",xmlValue))
+			messagedf <- rbind(classdf, data.frame(messages = messages))
+			cleanmessages <- messagedf[-which(messagedf$messages == ""), ]
+			messageframe <- rbind(classdf, data.frame(messages = cleanmessages))
+		}
 
 filteredmessagesandclasses <-
 		function(){
-			classframe <- filteredclasses()
-			messages <- xpathSApply(doc = posts, path = "//Post//text()",xmlValue)
-			print(sprintf("There are %d messages",length(messages)))
-			messageframe <- as.data.frame(messages)
-			messagesandclasses <- merge(messageframe,classframe)
-			messagesandclasses <-  messagesandclasses[ -which( messagesandclasses$messages==""), ]
-			print(sprintf("Merged frame has %d messages",length(messagesandclasses)))
-			print(colnames(messagesandclasses))
-			#messageframe$messages <- str_trim(messageframe$messages) 
-			#print( messagesandclasses )
-}
+			messageframe <- filteredmessages()
+			classesframe <- filteredclasses()	
+			mergedframe <-  data.frame(messageframe,classesframe)
+			print(sprintf("There are %d rows",nrow(mergedframe)))
+			
+		}
 
 
 
